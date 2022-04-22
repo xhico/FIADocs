@@ -37,21 +37,26 @@ auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tweepy.API(auth)
 
 
-def getLastTweetedPost():
+def getLastTweetedPost(championship):
     try:
-        with open('log.json') as inFile:
+        with open("log_" + championship + ".json") as inFile:
             data = json.load(inFile)[0]
         return data["date"], data["title"], data["href"]
     except Exception:
         return "", "", ""
 
 
-def getPosts():
+def getPosts(championship):
     # Get last tweeted post date and title
-    lastDate, lastTitle, lastHref = getLastTweetedPost()
+    lastDate, lastTitle, lastHref = getLastTweetedPost(championship)
 
     # Get Documents Page
-    browser.get("https://www.fia.com/documents/championships/championships/formula-2-championship-44")
+    if championship == "F2":
+        browser.get("https://www.fia.com/documents/championships/championships/formula-2-championship-44")
+    elif championship == "F3":
+        browser.get("https://www.fia.com/documents/championships/fia-formula-3-championship-1012")
+    else:
+        return []
 
     # Get Documents
     documents = browser.find_element(By.CLASS_NAME, "decision-document-list")
@@ -162,38 +167,43 @@ def batchDelete():
 
 
 def main():
-    # Get latest posts
-    eventTitle, newPosts = getPosts()
-    newPosts = list(reversed(newPosts))
+    for championship in ["F2", "F3"]:
+        # Get latest posts
+        eventTitle, newPosts = getPosts(championship)
+        newPosts = list(reversed(newPosts))
 
-    # Set hashtags
-    hashtags = getRaceHashtags(eventTitle)
-    hashtags += " " + "#FIA #Formula2 #F2 #GrandPrix #Motorsports #Racing"
+        # Set hashtags
+        hashtags = getRaceHashtags(eventTitle)
+        if championship == "F2":
+            hashtags += " " + "#Formula2 #F2"
+        elif championship == "F3":
+            hashtags += " " + "#Formula3 #F3"
+        hashtags += " " + "#FIA #GrandPrix #Motorsports #Racing"
 
-    # Go through each new post
-    for post in newPosts:
-        # Get post info
-        postTitle, postDate, postHref = post["title"], post["date"], post["href"]
-        print(postTitle)
-        print(postDate)
+        # Go through each new post
+        for post in newPosts:
+            # Get post info
+            postTitle, postDate, postHref = post["title"], post["date"], post["href"]
+            print(postTitle)
+            print(postDate)
 
-        # Screenshot DPF
-        hasPics = getScreenshots(postHref)
+            # Screenshot DPF
+            hasPics = getScreenshots(postHref)
 
-        # Tweet!
-        tweet(postTitle + "\n" + "Published at: " + postDate + "\n\n" + postHref + "\n\n" + hashtags, hasPics)
+            # Tweet!
+            tweet(postTitle + "\n" + "Published at: " + postDate + "\n\n" + postHref + "\n\n" + hashtags, hasPics)
 
-        # Save log
-        with open("log.json") as inFile:
-            data = list(reversed(json.load(inFile)))
-            data.append(post)
-        with open("log.json", "w") as outFile:
-            json.dump(list(reversed(data)), outFile, indent=2)
+            # Save log
+            with open("log_" + championship + ".json") as inFile:
+                data = list(reversed(json.load(inFile)))
+                data.append(post)
+            with open("log_" + championship + ".json", "w") as outFile:
+                json.dump(list(reversed(data)), outFile, indent=2)
 
-        print()
+            print()
 
-    # Get tweets -> Like them
-    favTweets(hashtags, 5)
+        # Get tweets -> Like them
+        favTweets(hashtags, 5)
 
 
 if __name__ == "__main__":
