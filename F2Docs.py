@@ -191,6 +191,10 @@ def main():
             hasPics = getScreenshots(postHref)
 
             # Tweet!
+            if championship == "F2":
+                postTitle = "New F2 Doc: " + postTitle
+            elif championship == "F3":
+                postTitle = "New F3 Doc: " + postTitle
             tweet(postTitle + "\n" + "Published at: " + postDate + "\n\n" + postHref + "\n\n" + hashtags, hasPics)
 
             # Save log
