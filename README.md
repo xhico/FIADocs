@@ -1,4 +1,4 @@
-# F2Docs
+# Formula 2 / Formula 3 Documents
 Auto Tweet FIA F2/F3 Documents <br />
 https://twitter.com/F2Docs<br />
 #FIA #Formula2 #F2 #Formula3 #F3 #GrandPrix #Motorsports #Racing<br /><br />
