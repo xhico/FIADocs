@@ -51,7 +51,9 @@ def getPosts(championship):
     lastDate, lastTitle, lastHref = getLastTweetedPost(championship)
 
     # Get Documents Page
-    if championship == "F2":
+    if championship == "F1":
+        browser.get("https://www.fia.com/documents/championships/fia-formula-one-world-championship-14")
+    elif championship == "F2":
         browser.get("https://www.fia.com/documents/championships/championships/formula-2-championship-44")
     elif championship == "F3":
         browser.get("https://www.fia.com/documents/championships/fia-formula-3-championship-1012")
@@ -157,24 +159,19 @@ def favTweets(tags, numbTweets):
     return True
 
 
-def batchDelete():
-    print("Deleting all tweets from the account @" + api.verify_credentials().screen_name)
-    for status in tweepy.Cursor(api.user_timeline).items():
-        try:
-            api.destroy_status(status.id)
-        except Exception:
-            pass
-
-
 def main():
-    for championship in ["F2", "F3"]:
+    for championship in ["F1", "F2", "F3"]:
+        print("Championship: " + championship)
+
         # Get latest posts
         eventTitle, newPosts = getPosts(championship)
         newPosts = list(reversed(newPosts))
 
         # Set hashtags
         hashtags = getRaceHashtags(eventTitle)
-        if championship == "F2":
+        if championship == "F1":
+            hashtags += " " + "#Formula1 #F1"
+        elif championship == "F2":
             hashtags += " " + "#Formula2 #F2"
         elif championship == "F3":
             hashtags += " " + "#Formula3 #F3"
@@ -192,10 +189,12 @@ def main():
             hasPics = getScreenshots(postHref)
 
             # Tweet!
-            if championship == "F2":
-                postTitle = "New F2 Doc: " + postTitle
+            if championship == "F1":
+                postTitle = "NEW F1 DOC" + "\n" + postTitle
+            elif championship == "F2":
+                postTitle = "NEW F2 DOC" + "\n" + postTitle
             elif championship == "F3":
-                postTitle = "New F3 Doc: " + postTitle
+                postTitle = "NEW F3 DOC" + "\n" + postTitle
             tweet(postTitle + "\n" + "Published at: " + postDate + "\n\n" + postHref + "\n\n" + hashtags, hasPics)
 
             # Save log
@@ -209,6 +208,7 @@ def main():
 
         # Get tweets -> Like them
         favTweets(hashtags, 5)
+        print("----------------------------------------------------")
 
 
 if __name__ == "__main__":
