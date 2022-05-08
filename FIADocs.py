@@ -207,7 +207,7 @@ def main():
             print()
 
         # Get tweets -> Like them
-        favTweets(hashtags, 5)
+        favTweets(hashtags, 2)
         print("----------------------------------------------------")
 
 
