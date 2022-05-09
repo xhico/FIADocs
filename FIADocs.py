@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
 
-# python3 -m pip install yagmail tweepy selenium pdf2image pytz --no-cache-dir
-# sudo apt install poppler-utils -y
+# python3 -m pip install yagmail beautifulsoup4 tweepy pdf2image pytz --no-cache-dir
+# sudo apt install poppler-utils python-html5lib -y
 import json
 import os
 from datetime import datetime
 import pytz
 import shutil
 import urllib.request
+import urllib.parse
+import requests
 import tweepy
 import yagmail
 import pdf2image
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.service import Service
+from bs4 import BeautifulSoup
 
 
 def get911(key):
@@ -51,28 +50,30 @@ def getPosts(championship):
     lastDate, lastTitle, lastHref = getLastTweetedPost(championship)
 
     # Get Documents Page
+    url = ""
     if championship == "F1":
-        browser.get("https://www.fia.com/documents/championships/fia-formula-one-world-championship-14")
+        url = "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14"
     elif championship == "F2":
-        browser.get("https://www.fia.com/documents/championships/championships/formula-2-championship-44")
+        url = "https://www.fia.com/documents/championships/championships/formula-2-championship-44"
     elif championship == "F3":
-        browser.get("https://www.fia.com/documents/championships/fia-formula-3-championship-1012")
-    else:
-        return []
+        url = "https://www.fia.com/documents/championships/fia-formula-3-championship-1012"
+
+    # Make soup
+    soup = BeautifulSoup(requests.get(url).text, 'html5lib')
 
     # Get Documents
-    documents = browser.find_element(By.CLASS_NAME, "decision-document-list")
-    lastEvent = documents.find_element(By.CLASS_NAME, "event-wrapper")
-    eventTitle = lastEvent.find_element(By.CLASS_NAME, "event-title").text.title()
+    documents = soup.find("div", {"class": "decision-document-list"})
+    lastEvent = documents.find("ul", {"class": "event-wrapper"})
+    eventTitle = lastEvent.find("div", {"class": "event-title"}).text.title()
 
     # Go through each post
     newPosts = []
-    eventDocuments = lastEvent.find_element(By.CLASS_NAME, "document-row-wrapper")
-    for post in eventDocuments.find_elements(By.CLASS_NAME, "document-row"):
-        post = post.find_element(By.TAG_NAME, "a")
-        postTitle = post.find_element(By.CLASS_NAME, "title").text
-        postHref = post.get_attribute("href")
-        postDate = post.find_element(By.CLASS_NAME, "published").text.replace("Published on ", "").replace("CET", "").strip()
+    eventDocuments = lastEvent.find("ul", {"class": "document-row-wrapper"})
+    for post in eventDocuments.find_all("li", {"class": "document-row"}):
+        post = post.find("a")
+        postTitle = post.find("div", {"class": "title"}).text.strip()
+        postHref = "https://www.fia.com" + urllib.parse.quote(post.get("href"))
+        postDate = post.find("div", {"class": "published"}).text.strip().replace("Published on ", "").replace("CET", "").strip()
 
         # Convert datetime to UTC time-zone
         postDate = datetime.strptime(postDate, "%d.%m.%y %H:%M").astimezone(pytz.UTC).strftime("%Y/%m/%d %H:%M") + " UTC"
@@ -207,19 +208,13 @@ def main():
             print()
 
         # Get tweets -> Like them
-        favTweets(hashtags, 5)
+        favTweets(hashtags, 1)
         print("----------------------------------------------------")
 
 
 if __name__ == "__main__":
     print("----------------------------------------------------")
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    headless = True
-    options = Options()
-    options.headless = headless
-    service = Service("/home/pi/geckodriver")
-    # service = Service(r"C:\Users\xhico\OneDrive\Useful\geckodriver.exe")
-    browser = webdriver.Firefox(service=service, options=options)
 
     # Set temp folder
     tmpFolder = r"tmp"
@@ -230,7 +225,4 @@ if __name__ == "__main__":
         print(ex)
         yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(ex))
     finally:
-        if headless:
-            browser.close()
-            print("Close")
         print("End")
