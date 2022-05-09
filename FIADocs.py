@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3
 
-# python3 -m pip install yagmail beautifulsoup4 tweepy pdf2image pytz --no-cache-dir
-# sudo apt install poppler-utils python-html5lib -y
+# python3 -m pip install yagmail beautifulsoup4 html5lib tweepy pdf2image pytz --no-cache-dir
+# sudo apt install poppler-utils -y
 import json
 import os
 from datetime import datetime
