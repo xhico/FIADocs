@@ -176,7 +176,7 @@ def main():
             hashtags += " " + "#Formula2 #F2"
         elif championship == "F3":
             hashtags += " " + "#Formula3 #F3"
-        hashtags += " " + "#FIA #GrandPrix #Motorsports #Racing"
+        hashtags += " " + "#FIA #GrandPrix"
         hashtags = hashtags.strip()
 
         # Go through each new post
