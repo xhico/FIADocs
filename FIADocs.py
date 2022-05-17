@@ -144,22 +144,6 @@ def tweet(tweetStr, hasPics):
         yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Failed to Tweet - " + os.path.basename(__file__), str(ex) + "\n\n" + tweetStr)
 
 
-def favTweets(tags, numbTweets):
-    tags = tags.replace(" ", " OR ")
-    tweets = tweepy.Cursor(api.search_tweets, q=tags).items(numbTweets)
-    tweets = [tw for tw in tweets]
-
-    for tw in tweets:
-        try:
-            tw.favorite()
-            print(str(tw.id) + " - Like")
-        except Exception as e:
-            print(str(tw.id) + " - " + str(e))
-            pass
-
-    return True
-
-
 def main():
     for championship in ["F1", "F2", "F3"]:
         print("Championship: " + championship)
@@ -207,8 +191,6 @@ def main():
 
             print()
 
-        # Get tweets -> Like them
-        favTweets(hashtags, 1)
         print("----------------------------------------------------")
 
 
