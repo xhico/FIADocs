@@ -181,12 +181,12 @@ def main():
 
             # Tweet!
             if championship == "F1":
-                postTitle = "NEW F1 DOC" + "\n" + postTitle
+                postTitle = "NEW F1 DOC" + "\n\n" + postTitle
             elif championship == "F2":
-                postTitle = "NEW F2 DOC" + "\n" + postTitle
+                postTitle = "NEW F2 DOC" + "\n\n" + postTitle
             elif championship == "F3":
-                postTitle = "NEW F3 DOC" + "\n" + postTitle
-            tweet(postTitle + "\n" + "Published at: " + postDate + "\n\n" + postHref + "\n\n" + hashtags, hasPics)
+                postTitle = "NEW F3 DOC" + "\n\n" + postTitle
+            tweet(postTitle + "\n\n" + "Published at: " + postDate + "\n\n" + postHref + "\n\n" + hashtags, hasPics)
 
             # Save log
             with open("log_" + championship + ".json") as inFile:
