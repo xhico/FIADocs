@@ -53,13 +53,19 @@ def getPosts(championship):
     url = ""
     if championship == "F1":
         url = "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14"
+        soup = BeautifulSoup(requests.get(url).text, 'html5lib')
+        url = soup.find("select", {"id": "facetapi_select_facet_form_2"}).find_all("option")[-1].get("value")
     elif championship == "F2":
         url = "https://www.fia.com/documents/championships/championships/formula-2-championship-44"
+        soup = BeautifulSoup(requests.get(url).text, 'html5lib')
+        url = soup.find("select", {"id": "facetapi_select_facet_form_2"}).find_all("option")[-1].get("value")
     elif championship == "F3":
         url = "https://www.fia.com/documents/championships/fia-formula-3-championship-1012"
+        soup = BeautifulSoup(requests.get(url).text, 'html5lib')
+        url = soup.find("select", {"id": "facetapi_select_facet_form_2"}).find_all("option")[-1].get("value")
 
     # Make soup
-    soup = BeautifulSoup(requests.get(url).text, 'html5lib')
+    soup = BeautifulSoup(requests.get("https://www.fia.com" + url).text, 'html5lib')
 
     # Get Documents
     documents = soup.find("div", {"class": "decision-document-list"})
@@ -73,10 +79,10 @@ def getPosts(championship):
         post = post.find("a")
         postTitle = post.find("div", {"class": "title"}).text.strip()
         postHref = "https://www.fia.com" + urllib.parse.quote(post.get("href"))
-        postDate = post.find("div", {"class": "published"}).text.strip().replace("Published on ", "").replace("CET", "").strip()
+        postDate = post.find("div", {"class": "published"}).text.strip().replace("Published on ", "").replace("CET", "").replace(".", " ").strip()
 
         # Convert datetime to UTC time-zone
-        postDate = datetime.strptime(postDate, "%d.%m.%y %H:%M").astimezone(pytz.UTC).strftime("%Y/%m/%d %H:%M") + " UTC"
+        postDate = datetime.strptime(postDate, "%d %m %y %H:%M").astimezone(pytz.UTC).strftime("%Y/%m/%d %H:%M") + " UTC"
 
         # Check
         if postDate == lastDate and postTitle == lastTitle and postHref == lastHref:
