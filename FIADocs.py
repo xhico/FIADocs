@@ -5,7 +5,7 @@
 # sudo apt install poppler-utils -y
 import json
 import os
-from datetime import datetime
+import datetime
 import pytz
 import shutil
 import urllib.request
@@ -83,7 +83,7 @@ def getPosts(championship):
         postDate = post.find("div", {"class": "published"}).text.strip().replace("Published on ", "").replace("CET", "").replace(".", " ").strip()
 
         # Convert datetime to UTC time-zone
-        postDate = datetime.strptime(postDate, "%d %m %y %H:%M").astimezone(pytz.UTC).strftime("%Y/%m/%d %H:%M") + " UTC"
+        postDate = datetime.datetime.strptime(postDate, "%d %m %y %H:%M").astimezone(pytz.UTC).strftime("%Y/%m/%d %H:%M") + " UTC"
 
         # Check
         if postDate == lastDate and postTitle == lastTitle and postHref == lastHref:
@@ -200,11 +200,10 @@ def main():
 
             print()
 
-        print("----------------------------------------------------")
-
 
 if __name__ == "__main__":
     print("----------------------------------------------------")
+    print(datetime.datetime.strftime(datetime.datetime.utcnow(), "%Y/%m/%d %H:%M UTC"))
 
     # Set temp folder
     tmpFolder = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmp")
@@ -227,3 +226,4 @@ if __name__ == "__main__":
             # Remove isRunning file
             os.remove(ISRUNNING_FILE)
             print("End")
+            print("----------------------------------------------------")
