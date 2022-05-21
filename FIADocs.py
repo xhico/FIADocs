@@ -171,7 +171,7 @@ def tweet(tweetStr, hasPics, championship):
     except Exception as ex:
         print("Failed to Tweet")
         print(ex)
-        yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Failed to Tweet - " + os.path.basename(__file__), str(ex) + "\n\n" + tweetStr)
+        yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Failed to Tweet - " + championship + " - " + os.path.basename(__file__), str(ex) + "\n\n" + tweetStr)
 
 
 def main():
