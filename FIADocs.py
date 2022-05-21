@@ -23,17 +23,9 @@ def get911(key):
     return data[key]
 
 
-CONSUMER_KEY = get911('TWITTER_FIADOCS_CONSUMER_KEY')
-CONSUMER_SECRET = get911('TWITTER_FIADOCS_CONSUMER_SECRET')
-ACCESS_TOKEN = get911('TWITTER_FIADOCS_ACCESS_TOKEN')
-ACCESS_TOKEN_SECRET = get911('TWITTER_FIADOCS_ACCESS_TOKEN_SECRET')
 EMAIL_USER = get911('EMAIL_USER')
 EMAIL_APPPW = get911('EMAIL_APPPW')
 EMAIL_RECEIVER = get911('EMAIL_RECEIVER')
-
-auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-api = tweepy.API(auth)
 
 
 def getLastTweetedPost(championship):
@@ -54,15 +46,15 @@ def getPosts(championship):
     url = ""
     if championship == "F1":
         url = "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14"
-        soup = BeautifulSoup(requests.get(url).text, 'html5lib')
+        soup = BeautifulSoup(requests.get(url, headers={"Cache-Control": "no-cache", "Pragma": "no-cache"}).text, 'html5lib')
         url = soup.find("select", {"id": "facetapi_select_facet_form_2"}).find_all("option")[-1].get("value")
     elif championship == "F2":
         url = "https://www.fia.com/documents/championships/championships/formula-2-championship-44"
-        soup = BeautifulSoup(requests.get(url).text, 'html5lib')
+        soup = BeautifulSoup(requests.get(url, headers={"Cache-Control": "no-cache", "Pragma": "no-cache"}).text, 'html5lib')
         url = soup.find("select", {"id": "facetapi_select_facet_form_2"}).find_all("option")[-1].get("value")
     elif championship == "F3":
         url = "https://www.fia.com/documents/championships/fia-formula-3-championship-1012"
-        soup = BeautifulSoup(requests.get(url).text, 'html5lib')
+        soup = BeautifulSoup(requests.get(url, headers={"Cache-Control": "no-cache", "Pragma": "no-cache"}).text, 'html5lib')
         url = soup.find("select", {"id": "facetapi_select_facet_form_2"}).find_all("option")[-1].get("value")
 
     # Make soup
@@ -138,8 +130,37 @@ def getRaceHashtags(eventTitle):
     return hashtags
 
 
-def tweet(tweetStr, hasPics):
+def getTwitterApi(championship):
+    CONSUMER_KEY = ""
+    CONSUMER_SECRET = ""
+    ACCESS_TOKEN = ""
+    ACCESS_TOKEN_SECRET = ""
+
+    if championship == "F1":
+        CONSUMER_KEY = get911('TWITTER_F1DOCS_CONSUMER_KEY')
+        CONSUMER_SECRET = get911('TWITTER_F1DOCS_CONSUMER_SECRET')
+        ACCESS_TOKEN = get911('TWITTER_F1DOCS_ACCESS_TOKEN')
+        ACCESS_TOKEN_SECRET = get911('TWITTER_F1DOCS_ACCESS_TOKEN_SECRET')
+    elif championship == "F2":
+        CONSUMER_KEY = get911('TWITTER_F2DOCS_CONSUMER_KEY')
+        CONSUMER_SECRET = get911('TWITTER_F2DOCS_CONSUMER_SECRET')
+        ACCESS_TOKEN = get911('TWITTER_F2DOCS_ACCESS_TOKEN')
+        ACCESS_TOKEN_SECRET = get911('TWITTER_F2DOCS_ACCESS_TOKEN_SECRET')
+    elif championship == "F3":
+        CONSUMER_KEY = get911('TWITTER_F3DOCS_CONSUMER_KEY')
+        CONSUMER_SECRET = get911('TWITTER_F3DOCS_CONSUMER_SECRET')
+        ACCESS_TOKEN = get911('TWITTER_F3DOCS_ACCESS_TOKEN')
+        ACCESS_TOKEN_SECRET = get911('TWITTER_F3DOCS_ACCESS_TOKEN_SECRET')
+
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+    api = tweepy.API(auth)
+    return api
+
+
+def tweet(tweetStr, hasPics, championship):
     try:
+        api = getTwitterApi(championship)
         media_ids = []
         if hasPics:
             imageFiles = sorted([file for file in os.listdir(tmpFolder) if file.split(".")[-1] == "jpg"])
@@ -149,6 +170,7 @@ def tweet(tweetStr, hasPics):
         print("Tweeted")
     except Exception as ex:
         print("Failed to Tweet")
+        print(ex)
         yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Failed to Tweet - " + os.path.basename(__file__), str(ex) + "\n\n" + tweetStr)
 
 
@@ -188,7 +210,7 @@ def main():
                 postTitle = "NEW F2 DOC" + "\n\n" + postTitle
             elif championship == "F3":
                 postTitle = "NEW F3 DOC" + "\n\n" + postTitle
-            tweet(postTitle + "\n\n" + "Published at: " + postDate + "\n\n" + postHref + "\n\n" + hashtags, hasPics)
+            tweet(postTitle + "\n\n" + "Published at: " + postDate + "\n\n" + postHref + "\n\n" + hashtags, hasPics, championship)
 
             # Save log
             LOG_FILE = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), "log_" + championship + ".json"))
