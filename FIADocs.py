@@ -28,19 +28,22 @@ EMAIL_APPPW = get911('EMAIL_APPPW')
 EMAIL_RECEIVER = get911('EMAIL_RECEIVER')
 
 
-def getLastTweetedPost(championship):
+def getLog(championship):
+    LOG_FILE = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), "log_" + championship + ".json"))
     try:
-        LOG_FILE = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), "log_" + championship + ".json"))
         with open(LOG_FILE) as inFile:
-            data = json.load(inFile)[0]
-        return data["date"], data["title"], data["href"]
+            data = json.load(inFile)
     except Exception:
-        return "", "", ""
+        data = []
+        with open(LOG_FILE, "w") as outFile:
+            json.dump(data, outFile, indent=2)
+
+    return data
 
 
 def getPosts(championship):
-    # Get last tweeted post date and title
-    lastDate, lastTitle, lastHref = getLastTweetedPost(championship)
+    # Get championship log
+    log = getLog(championship)
 
     # Get Documents Page
     url = ""
@@ -78,11 +81,9 @@ def getPosts(championship):
         postDate = datetime.datetime.strptime(postDate, "%d %m %y %H:%M").astimezone(pytz.UTC).strftime("%Y/%m/%d %H:%M") + " UTC"
 
         # Check
-        if postDate == lastDate and postTitle == lastTitle and postHref == lastHref:
-            break
-
-        # Add to new posts
-        newPosts.append({"date": postDate, "title": postTitle, "href": postHref})
+        if {"date": postDate, "title": postTitle, "href": postHref} not in log:
+            # Add to new posts
+            newPosts.append({"date": postDate, "title": postTitle, "href": postHref})
 
     return eventTitle, newPosts
 
