@@ -176,7 +176,7 @@ def tweet(tweetStr, hasPics, championship):
 
 
 def main():
-    for championship in ["F1", "F2", "F3"]:
+    for championship in ["F1", "F2"]:
         print("Championship: " + championship)
 
         # Get latest posts
