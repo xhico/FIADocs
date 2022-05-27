@@ -49,15 +49,15 @@ def getPosts(championship):
     url = ""
     if championship == "F1":
         url = "https://www.fia.com/documents/championships/fia-formula-one-world-championship-14"
-        soup = BeautifulSoup(requests.get(url, headers={"Cache-Control": "no-cache", "Pragma": "no-cache"}).text, 'html5lib')
+        soup = BeautifulSoup(requests.get(url).text, 'html5lib')
         url = soup.find("select", {"id": "facetapi_select_facet_form_2"}).find_all("option")[-1].get("value")
     elif championship == "F2":
         url = "https://www.fia.com/documents/championships/championships/formula-2-championship-44"
-        soup = BeautifulSoup(requests.get(url, headers={"Cache-Control": "no-cache", "Pragma": "no-cache"}).text, 'html5lib')
+        soup = BeautifulSoup(requests.get(url).text, 'html5lib')
         url = soup.find("select", {"id": "facetapi_select_facet_form_2"}).find_all("option")[-1].get("value")
     elif championship == "F3":
         url = "https://www.fia.com/documents/championships/fia-formula-3-championship-1012"
-        soup = BeautifulSoup(requests.get(url, headers={"Cache-Control": "no-cache", "Pragma": "no-cache"}).text, 'html5lib')
+        soup = BeautifulSoup(requests.get(url).text, 'html5lib')
         url = soup.find("select", {"id": "facetapi_select_facet_form_2"}).find_all("option")[-1].get("value")
 
     # Make soup
