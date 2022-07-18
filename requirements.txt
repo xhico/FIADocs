@@ -1,0 +1,6 @@
+yagmail
+beautifulsoup4
+html5lib
+tweepy
+pdf2image
+pytz
