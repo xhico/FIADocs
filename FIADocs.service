@@ -1,0 +1,12 @@
+[Unit]
+Description=FIADocs Service
+After=network.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/FIADocs/
+ExecStart=/usr/bin/python3 /home/pi/FIADocs/FIADocs.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
