@@ -3,18 +3,19 @@
 
 # sudo apt install poppler-utils -y
 
+import datetime
 import json
 import os
-import datetime
-import pytz
 import shutil
-import urllib.request
 import urllib.parse
+import urllib.request
+
+import pdf2image
+import psutil
+import pytz
 import requests
 import tweepy
 import yagmail
-import pdf2image
-import psutil
 from bs4 import BeautifulSoup
 
 
